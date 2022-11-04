@@ -1,0 +1,113 @@
+<html lang="en">
+<head>
+  <title>View of animal Sitings</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+ 
+</head>
+<body>
+
+<div class="container">
+  
+  {% if not outputs %}
+    <h2 class="text-center text-info">No Records Found</h2>
+     
+  {% else %}
+  <h2>View of animal Sitings</h2>
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Animal</th>
+        <th>Breed</th>
+        <th>Date</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for output in outputs %}
+      <tr>
+        <td>{{output.animal}}</td>
+        <td>{{output.breed}}</td>
+        <td>{{output.date}}</td>
+        <td><a href="{% url 'delete_item' output.id %}" onclick="return confirm('Are you sure you want to delete this item?')" class="btn btn-danger"> Remove</a>
+        </td>
+        
+      </tr>
+      {% endfor %}
+      
+    </tbody>
+  </table> 
+{% endif %}
+<button id="button" class="btn btn-primary">New </button><br/>
+<div id="box"><br/>
+  <form method="post" id="userForm" data-breed-url="{% url 'ajax_load_breed' %}">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <input type="submit" value="Save" name="save" class="btn btn-success"/>
+      <input type="submit" value="Cancel" name="cancel" id="cancel" class="btn btn-danger"/>
+  </form>
+</div>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script>
+    $("#id_animal").change(function () {
+        const url = $("#userForm").attr("data-breed-url");  // get the url of the `load_breed` view
+        const animalId = $(this).val();  // get the selected animal ID from the HTML input
+        $.ajax({                       // initialize an AJAX request
+            url: url,                    // set the url of the request (= /users/ajax/load-breed/ )
+            data: {
+                'animal_id': animalId       // add the animal id to the GET parameters
+            },
+            success: function (data) {   // `data` is the return of the `load_breed` view function
+                $("#id_breed").html(data);  // replace the contents of the city input with the data that came from the server
+               
+            }
+        });
+
+    });
+</script>
+<link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+<link rel="stylesheet" href="/resources/demos/style.css">
+<script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+<script>
+  $("#button").click(function() {  
+    $("#box form").show();
+    $("#id_breed").prop('disabled', true);
+    $("#id_date").prop('disabled', true);
+
+    return false;
+  });
+  $("#cancel").click(function(){
+    $("#box form").hide();     
+  }) 
+  $( "#id_date" ).datepicker();  
+  $('#id_animal option:first').remove();
+  $('#id_animal').append('<option selected="selected">Choose...</option>');
+  $('#id_breed option:first').remove();
+  $('#id_breed').append('<option selected="selected">Choose...</option>');
+</script>
+<script type="text/javascript">    
+  
+  $('#id_animal').change(function() {
+    $("#id_breed").prop('disabled', false);
+  });
+
+  $('#id_breed').change(function() {
+    $("#id_date").prop('disabled', false);
+  });
+</script>
+<style>
+  #box form {      
+      display:none;        
+     }
+  .form-control{
+      width: 40%;
+  }
+  
+</style>
+
+</body>
+</html>
